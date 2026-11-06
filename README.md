@@ -79,7 +79,17 @@ Refunds are submitted with `X-Refund-Idempotency` set to the refund operation UU
 
 ## Scheduler
 
-`GET /api/internal/jobs/tick` with `Authorization: Bearer <SCHEDULER_SECRET>` runs one bounded tick: reconcile payable orders near expiry → expire holds and balance windows → escalate overdue reviews → drain the webhook inbox → deliver the outbox (emails, alerts, refund submissions) → reconcile stuck refunds. A Postgres lease prevents overlap. `vercel.json` schedules it every minute; on Vercel set `CRON_SECRET` to the same value as `SCHEDULER_SECRET` (Vercel sends it as the bearer token). The admin payments page shows scheduler health.
+`GET /api/internal/jobs/tick` with `Authorization: Bearer <SCHEDULER_SECRET>` runs one bounded tick: reconcile payable orders near expiry → expire holds and balance windows → escalate overdue reviews → drain the webhook inbox → deliver the outbox (emails, alerts, refund submissions) → reconcile stuck refunds. A Postgres lease prevents overlap.
+
+Correctness does not depend on the tick: every booking request checks deadlines itself (lapsed holds are closed when someone books the same departure or opens the booking, and seat availability ignores lapsed holds). The tick only decides how quickly emails, refunds and reconciliation happen.
+
+Where it runs:
+
+- `vercel.json` schedules a daily safety-net run (Vercel Hobby allows one cron per day). Set `CRON_SECRET` to the same value as `SCHEDULER_SECRET`; Vercel sends it as the bearer token.
+- `.github/workflows/tick.yml` calls the endpoint every five minutes (best effort). Add `APP_URL` and `SCHEDULER_SECRET` as repository secrets.
+- For minute precision use an external scheduler such as cron-job.org with the same URL and bearer header, or a Vercel Pro cron with `* * * * *`.
+
+The admin payments page shows scheduler health (last tick time).
 
 ## Auth and roles
 

@@ -69,6 +69,10 @@ The page container was widened from 1200 px to 1480 px and the reading column fr
 
 Mirrors trippple.travel section rhythm: cream paper for the page, an espresso-dark band (bg-ink with the on-dark helper class) for the how-it-works feature and the footer, and an orange call-to-action band before the footer. Non-trip photography was swapped for higher-impact images (sunset group on a peak, golden-hour friends, a colourful old-city street, a dusk fire); trip hero and gallery photos remain of the actual destinations. Images are served at quality 85 with a 2400 px source width.
 
+## Scheduling on Vercel Hobby (6 Nov 2026)
+
+Vercel Hobby refuses sub-daily crons, so the per-minute cron was replaced. Deadline enforcement moved into the request path: creating a hold first closes lapsed holds and balance windows on that departure under the departure lock, opening a booking or polling its status expires it if due, and seat counts exclude lapsed bookings. The Vercel cron is now a daily safety net and a GitHub Actions workflow calls the tick every five minutes for emails, refunds and reconciliation; cron-job.org or Vercel Pro restores minute precision. Covered by lazy-expiry.test.ts.
+
 ## Decisions worth a review
 
 - Refunds and reconciliation use a thin fetch client (`src/lib/razorpay/client.ts`) rather than the SDK so `X-Refund-Idempotency` can be sent per request; the SDK package is installed but unused.

@@ -1,5 +1,5 @@
 import "@/lib/server-guard";
-import { and, asc, count, desc, eq, inArray, lte } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray, lte, sql } from "drizzle-orm";
 import type { Clock } from "@/lib/clock";
 import { getDb, type Db, type DbOrTx, type Tx } from "@/lib/db/client";
 import { withClockTx, retryTx } from "@/lib/db/tx";
@@ -19,12 +19,61 @@ import { enqueue } from "@/features/payments/outbox";
 
 export type Deps = { clock?: Clock; db?: Db };
 
-export async function activeBookingCount(db: DbOrTx, departureId: string): Promise<number> {
+/**
+ * Seats allocated on a departure. Holds and balance windows that have lapsed are not counted even before the
+ * scheduler closes them, so capacity never depends on how often the tick runs.
+ */
+export async function activeBookingCount(db: DbOrTx, departureId: string, now: Date = new Date()): Promise<number> {
   const [row] = await db
     .select({ n: count() })
     .from(bookings)
-    .where(and(eq(bookings.departureId, departureId), inArray(bookings.state, ACTIVE_BOOKING_STATES)));
+    .where(and(eq(bookings.departureId, departureId), inArray(bookings.state, ACTIVE_BOOKING_STATES), notLapsed(now)));
   return Number(row?.n ?? 0);
+}
+
+/** SQL predicate: active booking whose hold or balance deadline has not passed. */
+export function notLapsed(now: Date) {
+  return sql`not ((${bookings.state} = 'HELD' and ${bookings.holdExpiresAt} <= ${now}) or (${bookings.state} = 'BALANCE_DUE' and ${bookings.balanceDueAt} <= ${now}))`;
+}
+
+/**
+ * Closes lapsed holds and balance windows on one departure inside the caller's transaction. The caller must already
+ * hold the departure lock; bookings are then locked in creation order, matching the standard lock sequence.
+ */
+export async function expireLapsedForDeparture(tx: Tx, departure: DepartureRow, now: Date): Promise<number> {
+  const lapsed = await tx
+    .select({ id: bookings.id })
+    .from(bookings)
+    .where(and(eq(bookings.departureId, departure.id), inArray(bookings.state, ["HELD", "BALANCE_DUE"]), sql`not ${notLapsed(now)}`))
+    .orderBy(asc(bookings.createdAt));
+  for (const { id } of lapsed) {
+    const [booking] = await tx.select().from(bookings).where(eq(bookings.id, id)).for("update");
+    if (!booking) continue;
+    if (booking.state === "HELD" && booking.holdExpiresAt && booking.holdExpiresAt.getTime() <= now.getTime()) {
+      await closeBookingWithRefunds(tx, { booking, departure, now, newState: "EXPIRED", origin: "balance_timeout", reason: "Deposit not received before the hold expired." });
+      await enqueue(tx, "email.hold_expired", `email.hold_expired:${booking.id}`, { bookingId: booking.id });
+    } else if (booking.state === "BALANCE_DUE" && booking.balanceDueAt && booking.balanceDueAt.getTime() <= now.getTime()) {
+      await closeBookingWithRefunds(tx, { booking, departure, now, newState: "EXPIRED", origin: "balance_timeout", reason: "Balance not received before the deadline." });
+      await enqueue(tx, "email.balance_expired", `email.balance_expired:${booking.id}`, { bookingId: booking.id });
+    }
+  }
+  return lapsed.length;
+}
+
+/** Request-time expiry for one booking (account pages, status endpoint). No-op unless a deadline has passed. */
+export async function expireBookingIfDue(bookingId: string, deps: Deps = {}): Promise<boolean> {
+  const db = deps.db ?? getDb();
+  const now = deps.clock ? deps.clock.now() : new Date();
+  const [peek] = await db.select({ state: bookings.state, holdExpiresAt: bookings.holdExpiresAt, balanceDueAt: bookings.balanceDueAt, departureId: bookings.departureId }).from(bookings).where(eq(bookings.id, bookingId)).limit(1);
+  if (!peek) return false;
+  const due = (peek.state === "HELD" && peek.holdExpiresAt && peek.holdExpiresAt.getTime() <= now.getTime()) || (peek.state === "BALANCE_DUE" && peek.balanceDueAt && peek.balanceDueAt.getTime() <= now.getTime());
+  if (!due) return false;
+  return retryTx(() =>
+    withClockTx(async (tx, txNow) => {
+      const departure = await lockDeparture(tx, peek.departureId);
+      return (await expireLapsedForDeparture(tx, departure, txNow)) > 0;
+    }, deps),
+  );
 }
 
 export type CreateHoldInput = {
@@ -48,6 +97,8 @@ export async function createHold(input: CreateHoldInput, deps: Deps = {}): Promi
   return retryTx(() =>
     withClockTx(async (tx, now) => {
       const departure = await lockDeparture(tx, input.departureId);
+      // Every request checks deadlines: free seats held by lapsed bookings before counting capacity.
+      await expireLapsedForDeparture(tx, departure, now);
       const [existing] = await tx
         .select()
         .from(bookings)
@@ -76,7 +127,7 @@ export async function createHold(input: CreateHoldInput, deps: Deps = {}): Promi
           policyVersionId: departure.policyVersionId,
         });
       }
-      const allocated = await activeBookingCount(tx, departure.id);
+      const allocated = await activeBookingCount(tx, departure.id, now);
       if (allocated >= departure.capacity) throw errors.conflict("SOLD_OUT", "The last seat was just taken. You can join the waitlist.");
 
       const { depositPaise, balancePaise } = splitInstalments(departure.totalPaise, departure.depositBps);

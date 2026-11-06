@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { z } from "zod";
 import { requirePageUser } from "@/lib/auth/pages";
 import { loadBookingForViewer, toStatusView } from "@/features/bookings/status";
+import { expireBookingIfDue } from "@/features/bookings/service";
 import { stateTone } from "@/features/bookings/view";
 import { isAppError } from "@/lib/errors";
 import { formatInr } from "@/lib/money";
@@ -22,6 +23,7 @@ export default async function BookingPage({ params }: { params: Promise<{ id: st
   const { id } = await params;
   if (!z.string().uuid().safeParse(id).success) notFound();
   const user = await requirePageUser(`/account/bookings/${id}`);
+  await expireBookingIfDue(id);
   let loaded;
   try {
     loaded = await loadBookingForViewer(id, user);

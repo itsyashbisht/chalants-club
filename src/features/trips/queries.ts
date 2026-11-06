@@ -3,7 +3,8 @@ import { and, asc, eq, gte, inArray, lte, sql } from "drizzle-orm";
 import { getDb, type DbOrTx } from "@/lib/db/client";
 import { departures, departureTags, hosts, itineraryDays, policyVersions, trips, waitlist } from "./schema";
 
-const seatsLeftSql = sql<number>`(${departures.capacity} - (select count(*) from bookings b where b.departure_id = ${departures.id} and b.state in ('HELD','UNDER_REVIEW','BALANCE_DUE','CONFIRMED')))::int`;
+/** Seats left, ignoring holds and balance windows that have already lapsed (closed lazily or by the scheduler). */
+const seatsLeftSql = sql<number>`(${departures.capacity} - (select count(*) from bookings b where b.departure_id = ${departures.id} and b.state in ('HELD','UNDER_REVIEW','BALANCE_DUE','CONFIRMED') and not ((b.state = 'HELD' and b.hold_expires_at <= now()) or (b.state = 'BALANCE_DUE' and b.balance_due_at <= now()))))::int`;
 
 const cardSelection = {
   id: departures.id,

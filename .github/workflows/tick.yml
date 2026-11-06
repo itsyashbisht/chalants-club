@@ -1,0 +1,29 @@
+name: Scheduler tick
+
+# Vercel Hobby allows one cron a day, so the frequent tick runs from here instead.
+# GitHub schedules are best-effort (typically every 5-15 minutes). Deadlines are also enforced on every request,
+# so this only affects how quickly emails, refunds and reconciliation run. For minute precision use an external
+# scheduler such as cron-job.org pointing at the same URL with the same bearer secret.
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Call the tick endpoint
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          SCHEDULER_SECRET: ${{ secrets.SCHEDULER_SECRET }}
+        run: |
+          if [ -z "$APP_URL" ] || [ -z "$SCHEDULER_SECRET" ]; then
+            echo "APP_URL and SCHEDULER_SECRET repository secrets are required"; exit 1
+          fi
+          code=$(curl -s -o /tmp/tick.json -w "%{http_code}" --max-time 90 \
+            -H "Authorization: Bearer $SCHEDULER_SECRET" "$APP_URL/api/internal/jobs/tick")
+          cat /tmp/tick.json; echo
+          test "$code" = "200"

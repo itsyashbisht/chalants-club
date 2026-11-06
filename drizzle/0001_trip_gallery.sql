@@ -1,0 +1,1 @@
+ALTER TABLE "trips" ADD COLUMN "gallery_urls" jsonb DEFAULT '[]'::jsonb NOT NULL;

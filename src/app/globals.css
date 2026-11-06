@@ -1,26 +1,186 @@
 @import "tailwindcss";
 
+/* Semantic tokens from docs/design.md. Defined once, mapped to Tailwind utilities below. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Trippple-derived palette: espresso ink on warm paper, neon orange action, acid lime highlight. */
+  --paper: #f5f0e6;
+  --surface: #ffffff;
+  --ink: #2b120a;
+  --ink-2: #5c463c;
+  --action: #ff5e1a;
+  --action-hover: #e64d0d;
+  --tint: #f0ead6;
+  --rule: #dbc1ac;
+  --outline: #8a6a56;
+  --success: #27763d;
+  --attention: #8b6914;
+  --error: #b3261e;
+  --focus: #174c86;
+  --poster: #c8f520;
+  --band: #2c2c2c;
+  --lime: #c8f520;
+  --cat-pink: #d96c88;
+  --cat-slate: #89abb8;
+  --cat-forest: #2d8b46;
+  --cat-teal: #26a69a;
+  --cat-orange: #ff8c00;
+  --cat-mustard: #8b6914;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-action: var(--action);
+  --color-action-hover: var(--action-hover);
+  --color-tint: var(--tint);
+  --color-rule: var(--rule);
+  --color-outline: var(--outline);
+  --color-success: var(--success);
+  --color-attention: var(--attention);
+  --color-error: var(--error);
+  --color-focus: var(--focus);
+  --color-poster: var(--poster);
+  --color-band: var(--band);
+  --color-lime: var(--lime);
+  --color-cat-pink: var(--cat-pink);
+  --color-cat-slate: var(--cat-slate);
+  --color-cat-forest: var(--cat-forest);
+  --color-cat-teal: var(--cat-teal);
+  --color-cat-orange: var(--cat-orange);
+  --color-cat-mustard: var(--cat-mustard);
+
+  --font-display: var(--font-bricolage), "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-dm-sans), "DM Sans", ui-sans-serif, system-ui, sans-serif;
+
+  /* Radii measured from trippple.travel: pills for buttons and chips, 24 for large cards and photos, 18 for place cards, 12 for inputs, 8 for small tiles. */
+  --radius-control: 12px;
+  --radius-card: 18px;
+  --radius-editorial: 24px;
+  --radius-tile: 8px;
+
+  --container-page: 1480px;
+  --container-prose: 760px;
+  --container-form: 560px;
+
+  --text-hero: clamp(2.75rem, 6vw, 5rem);
+  --text-hero--line-height: 1.08;
+  --text-title: clamp(2.125rem, 4vw, 3.5rem);
+  --text-title--line-height: 1.08;
+  --text-section: clamp(1.625rem, 3vw, 2.25rem);
+  --text-section--line-height: 1.12;
+  --text-meta: 0.875rem;
+  --text-meta--line-height: 1.5;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100%;
+  font-size: 1.0625rem;
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.prose-measure {
+  max-width: 65ch;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px #fff;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* Dark sections (Trippple's espresso band): paper type, muted paper for secondary copy, cards keep ink type. */
+.on-dark {
+  color: var(--paper);
+}
+.on-dark .text-ink-2 {
+  color: rgba(245, 240, 230, 0.78);
+}
+.on-dark .text-ink {
+  color: var(--paper);
+}
+.on-dark .bg-paper,
+.on-dark .bg-surface {
+  color: var(--ink);
+}
+.on-dark .bg-paper .text-ink-2,
+.on-dark .bg-surface .text-ink-2 {
+  color: var(--ink-2);
+}
+.on-dark .bg-paper .text-ink,
+.on-dark .bg-surface .text-ink {
+  color: var(--ink);
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 40s linear infinite;
+}
+
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+    width: auto;
+    flex-wrap: wrap;
+  }
+}
+
+.safe-bottom {
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+}
+
+.sr-only-focusable:not(:focus):not(:focus-within) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }

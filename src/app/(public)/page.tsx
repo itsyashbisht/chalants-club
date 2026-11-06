@@ -267,7 +267,7 @@ export default async function HomePage() {
                       <li>Kesariya · Pritam</li>
                     </ul>
                   </div>
-                  <Photo photo={PHOTOS.bonfire} aspect="aspect-[4/5]" sizes="(min-width: 1024px) 22vw, 40vw" />
+                  <Photo photo={PHOTOS.stars} aspect="aspect-[4/5]" sizes="(min-width: 1024px) 22vw, 40vw" />
                 </div>
               </div>
             </div>
@@ -282,7 +282,7 @@ export default async function HomePage() {
           <h2 className="text-section">Slow mornings, one real plan, long evenings</h2>
           <div className="mt-8 grid gap-6 md:grid-cols-3">
             <Photo photo={PHOTOS.sunrise} caption="5:30 am · The optional one. Four people went. Someone made chai." sizes="(min-width: 768px) 33vw, 100vw" />
-            <Photo photo={PHOTOS.foodCart} caption="4 pm · The food walk. Your host knows which stall, and which one to skip." sizes="(min-width: 768px) 33vw, 100vw" />
+            <Photo photo={PHOTOS.thali} caption="4 pm · Lunch is a long one. Your host knows which place, and which to skip." sizes="(min-width: 768px) 33vw, 100vw" />
             <Photo photo={PHOTOS.evening} caption="9 pm · No plan. Cards, a fire if it’s cold, or a quiet corner." sizes="(min-width: 768px) 33vw, 100vw" />
           </div>
         </Container>

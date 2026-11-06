@@ -73,6 +73,10 @@ Mirrors trippple.travel section rhythm: cream paper for the page, an espresso-da
 
 Vercel Hobby refuses sub-daily crons, so the per-minute cron was replaced. Deadline enforcement moved into the request path: creating a hold first closes lapsed holds and balance windows on that departure under the departure lock, opening a booking or polling its status expires it if due, and seat counts exclude lapsed bookings. The Vercel cron is now a daily safety net and a GitHub Actions workflow calls the tick every five minutes for emails, refunds and reconciliation; cron-job.org or Vercel Pro restores minute precision. Covered by lazy-expiry.test.ts.
 
+## Photography pass and illustrations (6 Nov 2026, later)
+
+Every photo was reviewed. Weak stock (two street-food snapshots, a dark bonfire, a phone-quality waterfall and the first Asha portrait) was replaced with stronger images: a Rajasthani thali, a Himachal cabin and village at dusk, a snowy Tirthan ridge, a daytime City Palace, a natural host portrait. Trip hero and gallery photos stay on location (Udaipur, Tirthan Valley and Himachal); non-trip photos are chosen for attraction only. The how-it-works steps and the terms, privacy and cancellation asides now use brand-colour line illustrations (src/components/ui/illustrations.tsx) instead of photographs. The mobile header is a hamburger button that opens a full-width panel, still JavaScript-free.
+
 ## Decisions worth a review
 
 - Refunds and reconciliation use a thin fetch client (`src/lib/razorpay/client.ts`) rather than the SDK so `X-Refund-Idempotency` can be sent per request; the SDK package is installed but unused.

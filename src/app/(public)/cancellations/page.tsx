@@ -5,7 +5,7 @@ import { PHOTOS } from "@/content/site";
 import { Section, TwoColumn, Eyebrow } from "@/components/ui/container";
 import { Notice } from "@/components/ui/notice";
 import { PageHero } from "@/components/ui/page-hero";
-import { Photo } from "@/components/ui/photo";
+import { RefundIllustration } from "@/components/ui/illustrations";
 
 export const metadata: Metadata = { title: "Cancellations and refunds" };
 export const dynamic = "force-dynamic";
@@ -31,7 +31,9 @@ export default async function CancellationsPage() {
                 </ul>
                 <p className="mt-3 text-meta text-ink-2">This is what the confirmation screen looks like. The amount is computed from your booking, not a table.</p>
               </div>
-              <Photo photo={PHOTOS.heroSecondary} aspect="aspect-[4/3]" sizes="(min-width: 1024px) 35vw, 100vw" />
+              <div className="rounded-card bg-tint p-6">
+                <RefundIllustration className="w-full text-ink" />
+              </div>
             </div>
           }
         >

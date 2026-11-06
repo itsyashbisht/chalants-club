@@ -3,7 +3,7 @@ import Link from "next/link";
 import { PHOTOS } from "@/content/site";
 import { Section, TwoColumn } from "@/components/ui/container";
 import { PageHero } from "@/components/ui/page-hero";
-import { Photo } from "@/components/ui/photo";
+import { TermsIllustration } from "@/components/ui/illustrations";
 
 export const metadata: Metadata = { title: "Terms" };
 
@@ -29,7 +29,9 @@ export default function TermsPage() {
                   <Link href="/cancellations" className="underline">Cancellations and refunds</Link> · <Link href="/privacy" className="underline">Privacy</Link>
                 </p>
               </div>
-              <Photo photo={PHOTOS.stars} aspect="aspect-[4/3]" sizes="(min-width: 1024px) 35vw, 100vw" />
+              <div className="rounded-card bg-tint p-6">
+                <TermsIllustration className="w-full text-ink" />
+              </div>
             </div>
           }
         >

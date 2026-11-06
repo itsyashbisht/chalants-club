@@ -3,14 +3,14 @@ import Link from "next/link";
 import { PHOTOS } from "@/content/site";
 import { Section, TwoColumn } from "@/components/ui/container";
 import { PageHero } from "@/components/ui/page-hero";
-import { Photo } from "@/components/ui/photo";
+import { PrivacyIllustration } from "@/components/ui/illustrations";
 
 export const metadata: Metadata = { title: "Privacy" };
 
 export default function PrivacyPage() {
   return (
     <>
-      <PageHero eyebrow="Privacy · pilot draft v1" title="What we keep, and for how long" lead="Less than you’d expect. No document scans, no quiz answers shown to anyone, no contact details shared unless two people choose each other." photo={PHOTOS.tirthanWaterfall} />
+      <PageHero eyebrow="Privacy · pilot draft v1" title="What we keep, and for how long" lead="Less than you’d expect. No document scans, no quiz answers shown to anyone, no contact details shared unless two people choose each other." photo={PHOTOS.tirthanRidge} />
       <Section>
         <TwoColumn
           aside={
@@ -23,7 +23,9 @@ export default function PrivacyPage() {
                   <li>The private quiz answer about what you hope for</li>
                 </ul>
               </div>
-              <Photo photo={PHOTOS.sunrise} aspect="aspect-[4/3]" sizes="(min-width: 1024px) 35vw, 100vw" />
+              <div className="rounded-card bg-tint p-6">
+                <PrivacyIllustration className="w-full text-ink" />
+              </div>
             </div>
           }
         >

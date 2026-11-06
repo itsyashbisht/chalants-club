@@ -24,26 +24,28 @@ export const PHOTOS = {
   bridge: photo("photo-1761226546430-e44f267fde3d", "Three hikers celebrating on a suspension bridge with mountains behind"),
   bonfire: photo("photo-1784813489506-c1adf9df142f", "People gathered around a campfire at night"),
   stars: photo("photo-1784223042072-69cd9e864860", "Camp under a starry sky with a fire and snow-capped mountains"),
-  foodStall: photo("photo-1760263051323-fcd7da7040b0", "A street vendor serving snacks from a large container"),
-  foodCart: photo("photo-1788620644598-58fe1354bf2a", "A street food cart with puffed rice, lentils, peanuts and tomatoes"),
+  thali: photo("photo-1589778655375-3e622a9fc91c", "A Rajasthani thali of ten small dishes on a brass tray with a basket of breads"),
+  cabin: photo("photo-1756776507069-31111904f477", "A timber-and-slate cabin in a pine meadow in Himachal"),
+  villageDusk: photo("photo-1641878778985-adf693d9ebec", "Smoke rising from a Himachali village at dusk with ridgelines behind"),
   sunrise: photo("photo-1549926506-afba2eb9fb6f", "First light hitting a snow-covered ridge"),
   udaipurPalace: photo("photo-1695956353120-54ce5e91632b", "The City Palace on the banks of Lake Pichola, Udaipur, at golden hour"),
   udaipurBoats: photo("photo-1699949958644-64499c608946", "Boats resting on the lake in Udaipur"),
   tirthanVillage: photo("photo-1701517857774-ce9c3c07bd39", "A village in the middle of the Tirthan valley surrounded by mountains"),
   tirthanRiver: photo("photo-1715236041029-b1ae4aff390d", "The Tirthan river running through a lush green forest"),
-  tirthanWaterfall: photo("photo-1652501836325-5610537fbb96", "A waterfall in the forest above the valley"),
-  hostAsha: photo("photo-1533128361669-69c065857a13", "Portrait of host Asha, smiling, in the old city"),
+  tirthanRidge: photo("photo-1715236041006-3c98eb803cc3", "A snow-dusted ridge above the Tirthan valley seen through pines"),
+  udaipurPalaceDay: photo("photo-1589901164570-f9de6556e1c1", "The City Palace of Udaipur from Lake Pichola on a clear day"),
+  hostAsha: photo("photo-1789500381106-ba13068a6520", "Portrait of host Asha, smiling, on a hillside path"),
   hostRohan: photo("photo-1656938460307-786fcf422103", "Portrait of host Rohan, smiling, with a mountain behind him"),
 } as const;
 
 export const TRIP_IMAGES: Record<string, { hero: Photo; gallery: Photo[] }> = {
   "udaipur-lakes-long-weekend": {
     hero: PHOTOS.udaipurPalace,
-    gallery: [PHOTOS.udaipurBoats, PHOTOS.udaipurDock, PHOTOS.foodStall, PHOTOS.rooftop],
+    gallery: [PHOTOS.udaipurBoats, PHOTOS.udaipurDock, PHOTOS.thali, PHOTOS.udaipurPalaceDay],
   },
   "himalayan-village-week": {
     hero: PHOTOS.tirthanVillage,
-    gallery: [PHOTOS.tirthanRiver, PHOTOS.bridge, PHOTOS.bonfire, PHOTOS.tirthanWaterfall],
+    gallery: [PHOTOS.tirthanRiver, PHOTOS.cabin, PHOTOS.villageDusk, PHOTOS.tirthanRidge],
   },
 };
 

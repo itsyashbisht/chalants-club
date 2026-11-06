@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { listDestinations, listOpenDepartures } from "@/features/trips/queries";
+import { withDbFallback } from "@/lib/db/safe";
 import { Container, Section, Eyebrow } from "@/components/ui/container";
 import { DepartureCard } from "@/components/ui/departure-card";
 import { Button } from "@/components/ui/button";
@@ -16,7 +17,7 @@ export default async function TripsPage({ searchParams }: { searchParams: Promis
   const destination = typeof params.destination === "string" && params.destination ? params.destination : undefined;
   const from = typeof params.from === "string" && DATE.test(params.from) ? params.from : undefined;
   const to = typeof params.to === "string" && DATE.test(params.to) ? params.to : undefined;
-  const [departures, destinations] = await Promise.all([listOpenDepartures({ destination, from, to }), listDestinations()]);
+  const [departures, destinations] = await Promise.all([withDbFallback([], () => listOpenDepartures({ destination, from, to })), withDbFallback([], () => listDestinations())]);
   const filtered = Boolean(destination || from || to);
   return (
     <Section>

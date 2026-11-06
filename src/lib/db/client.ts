@@ -30,7 +30,7 @@ export function createDb(connectionString: string, max = 5): { db: Db; pool: Poo
 /** Process-wide database handle (survives dev HMR). Uses DATABASE_URL. */
 export function getDb(): Db {
   const url = process.env.DATABASE_URL;
-  if (!url) throw new Error("DATABASE_URL is not set");
+  if (!url) throw new Error("DATABASE_URL is not set. Add a Postgres connection string (Neon pooled URL in production) to the environment.");
   if (g.__chalantsDb && g.__chalantsUrl === url) return g.__chalantsDb;
   const { db, pool } = createDb(url, 8);
   g.__chalantsPool = pool;

@@ -10,7 +10,8 @@ const schema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   APP_ENV: z.enum(["development", "staging", "production"]).default("development"),
   APP_URL: z.preprocess(emptyToUndefined, z.string().url().default("http://localhost:3000")),
-  DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
+  /** Optional at parse time so public pages can render on a bare deployment; getDb() fails loudly when it is missing. */
+  DATABASE_URL: optionalString,
   OPERATOR_NAME: z.preprocess(emptyToUndefined, z.string().default("Chalants Club")),
   SUPPORT_EMAIL: z.preprocess(emptyToUndefined, z.string().email().default("support@example.com")),
   SUPPORT_HOURS: z.preprocess(emptyToUndefined, z.string().default("Mon-Sat, 10:00-18:00 IST")),

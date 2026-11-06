@@ -3,6 +3,7 @@ import Image from "next/image";
 import { listOpenDepartures } from "@/features/trips/queries";
 import { listHosts } from "@/features/trips/service";
 import { getCurrentUser } from "@/lib/auth/server";
+import { withDbFallback } from "@/lib/db/safe";
 import { formatInr, splitInstalments } from "@/lib/money";
 import { formatDateRange } from "@/lib/time";
 import { FAQ, HOST_PHOTOS, MARQUEE, PHOTOS, PROMISES, STORIES } from "@/content/site";
@@ -15,7 +16,7 @@ import { Photo } from "@/components/ui/photo";
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [departures, hosts, user] = await Promise.all([listOpenDepartures(), listHosts(), getCurrentUser().catch(() => null)]);
+  const [departures, hosts, user] = await Promise.all([withDbFallback([], () => listOpenDepartures()), withDbFallback([], () => listHosts()), getCurrentUser().catch(() => null)]);
   const next = departures.find((d) => d.seatsLeft > 0) ?? departures[0] ?? null;
   const showStories = process.env.APP_ENV !== "production";
   const stories = STORIES.filter((s) => s.approved || showStories);
@@ -113,7 +114,7 @@ export default async function HomePage() {
               ))}
             </ul>
           ) : (
-            <p className="mt-6 text-ink-2">No departures are published yet. Join the waitlist from a trip page once they are.</p>
+            <p className="mt-6 text-ink-2">No departures are published yet. Dates, prices and hosts appear here once the organiser publishes inventory.</p>
           )}
         </Container>
       </Section>

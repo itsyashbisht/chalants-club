@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { listHosts } from "@/features/trips/service";
+import { withDbFallback } from "@/lib/db/safe";
 import { PHOTOS, PROMISES } from "@/content/site";
 import { Container, Section, Eyebrow } from "@/components/ui/container";
 import { Photo } from "@/components/ui/photo";
@@ -12,7 +13,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AboutPage() {
   const operator = process.env.OPERATOR_NAME || "Chalants Club";
-  const hosts = await listHosts();
+  const hosts = await withDbFallback([], () => listHosts());
   return (
     <>
       <Section className="pb-6">
